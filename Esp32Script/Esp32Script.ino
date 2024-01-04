@@ -6,17 +6,34 @@ const int ledPin = 5;
 
 void setup() {
   Serial.begin(115200); // Initialize the serial communication
-  SerialBT.begin("Esp32-BT");
+  SerialBT.begin("VENTILATOR");
   pinMode(ledPin, OUTPUT);
 }
 
 void loop() {
   if (SerialBT.available()) {
-    char c = SerialBT.read();
-    int command = int(c);
-
-    Serial.println("Received command: " + String(command)); // Print the received command to the serial monitor
+    // Create an array to store the received data
+    char receivedData[4];
     
-    analogWrite(ledPin, command);
+    // Read 3 bytes into the array
+    int bytesRead = SerialBT.readBytes(receivedData, sizeof(receivedData) - 1);
+
+    // Null-terminate the string
+    receivedData[bytesRead] = '\0';
+
+    // Process the received data as a string
+    if (bytesRead > 0) {
+
+      int receivedNumber = atoi(receivedData);
+
+      // Process the received number
+      receivedNumber=abs(255-receivedNumber);
+      Serial.println(receivedNumber);
+
+      analogWrite(ledPin, receivedNumber);
+    }
   }
 }
+
+
+

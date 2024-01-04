@@ -4,6 +4,7 @@ import tkinter as tk
 import re
 from tkinter import messagebox
 from bluetooth import *
+import time
 
 esp32_address=''
 def print_devices_to_console():
@@ -30,9 +31,10 @@ def discover_bt():
 
 def send_command(command):
     try:
-
-        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        label.configure(text=f"Slider Value: {command}")
+        slider.set(int(command))
         print('Sending command: '+command+' to: '+esp32_address)
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         sock.connect((esp32_address, 1))
         sock.send(command)
         sock.close()
@@ -63,6 +65,15 @@ def on_select(event):
 def update_slider_value(value):
     label.config(text=f"Slider Value: {value}")
 
+def debounce(func, delay=0.5):
+    def wrapper(*args, **kwargs):
+        current_time = time.time()
+        if not hasattr(wrapper, 'last_time') or (current_time - wrapper.last_time) > delay:
+            func(*args, **kwargs)
+            wrapper.last_time = current_time
+
+    return wrapper
+
 # GUI Setup
 app = ctk.CTk()
 app.geometry('720x480')
@@ -78,22 +89,19 @@ device_listbox.pack(pady=10)
 device_listbox.bind("<<ListboxSelect>>", on_select)
 
 # Buttons to control the LED
-on_button = ctk.CTkButton(app, text="Turn OFF FAN", command=lambda: send_command("1"))
+on_button = ctk.CTkButton(app, text="Turn ON FAN", command=lambda: send_command('255'))
 on_button.pack(pady=5)
 
-off_button = ctk.CTkButton(app, text="Turn ON FAN", command=lambda: send_command("0"))
+off_button = ctk.CTkButton(app, text="Turn OFF FAN", command=lambda: send_command('0'))
 off_button.pack(pady=5)
 
-
-
-
-
 # Create a label to display the slider value
-label = tk.Label(app, text="Slider Value: 0")
+label = ctk.CTkLabel(app, text="Slider Value: 0")
 label.pack(pady=10)
 
 # Create a slider
-slider = tk.Scale(app, from_=0, to=255, orient=tk.HORIZONTAL, length=300, command=lambda pos: send_command(pos))
+slider = ctk.CTkSlider(app, from_=0, to=255,  command=lambda pos: send_command(str(round(pos))))
+slider.set(0)
 slider.pack(pady=10)
 # Run the GUI
 app.mainloop()
