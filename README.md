@@ -11,7 +11,7 @@ This project is a Python application for controlling a laptop cooler via Bluetoo
 
 ## Usage
 
-1. Run the Python script `Esp32BtLaptopCooler.py`.
+1. Run the Python script `Main.py`.
 2. Click on the "Discover Devices" button to find nearby Bluetooth devices.
 3. Select the desired device from the list.
 4. Use the "Turn ON FAN" and "Turn OFF FAN" buttons to control the laptop cooler.
